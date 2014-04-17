@@ -1,0 +1,4 @@
+<configuration>
+	<!-- options: red, green, blue, yellow, orange or purple -->
+	<imagecolor>red</imagecolor>
+</configuration>

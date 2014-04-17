@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx			="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s			="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx			="library://ns.adobe.com/flex/mx" 
+				   xmlns:viewer		="com.esri.viewer.*"
+				   creationComplete ="init(event)" 
+				   widgetConfigLoaded="init_config()"
+				   >
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.Map;
+			import com.esri.ags.events.ExtentEvent;
+			import com.esri.ags.events.LayerEvent;
+			import com.esri.ags.events.MapEvent;
+			import com.esri.ags.events.PanEvent;
+			import com.esri.ags.layers.Layer;
+			import com.esri.viewer.ViewerContainer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			private var layerColl:ArrayCollection;
+			
+			[Embed(source="assets/images/blue.swf")]
+			[Bindable] private var blueClass:Class;
+			[Embed(source="assets/images/green.swf")]
+			[Bindable] private var greenClass:Class;
+			[Embed(source="assets/images/orange.swf")]
+			[Bindable] private var orangeClass:Class;
+			[Embed(source="assets/images/purple.swf")]
+			[Bindable] private var purpleClass:Class;
+			[Embed(source="assets/images/red.swf")]
+			[Bindable] private var redClass:Class;
+			[Embed(source="assets/images/yellow.swf")]
+			[Bindable] private var yellowClass:Class;
+			
+			private function init_config():void
+			{
+				if (configXML)
+				{	
+					var imageColor:String = configXML.imagecolor || "red";
+					if (imageColor == "blue"){
+						load_img.source = blueClass;
+					}
+					else if (imageColor == "green"){
+						load_img.source = greenClass;
+					}
+					else if (imageColor == "orange"){
+						load_img.source = orangeClass;
+					}
+					else if (imageColor == "purple"){
+						load_img.source = purpleClass;
+					}
+					else if (imageColor == "red"){
+						load_img.source = redClass;
+					}
+					else if (imageColor == "yellow"){
+						load_img.source = yellowClass;
+					}
+				}
+			}
+			
+			protected function init(event:FlexEvent):void
+			{ 
+				layerColl = new ArrayCollection();
+				bindEvents();
+			}
+			
+			private function bindEvents():void
+			{
+				var map:Map = ViewerContainer.getInstance().mapManager.map;
+				for each(var layerId:String in map.layerIds)
+				{
+					var lyr:Layer = map.getLayer(layerId);
+					if (lyr)
+					{
+						lyr.addEventListener(LayerEvent.UPDATE_START, layerUpdateStartHandler);
+						lyr.addEventListener(LayerEvent.UPDATE_END, layerUpdateEndHandler);
+					}
+				}
+				map.addEventListener(ExtentEvent.EXTENT_CHANGE, mapExtentChangeHandler);
+				map.addEventListener(PanEvent.PAN_START, mapPanStartHandler);
+			}
+			
+			protected function mapExtentChangeHandler(event:ExtentEvent):void
+			{
+				load_img.visible = true;
+			}
+			
+			protected function mapPanStartHandler(event:PanEvent):void
+			{
+				load_img.visible = true;
+			}
+					
+			protected function layerUpdateStartHandler(event:LayerEvent):void
+			{
+				load_img.visible = true;
+				var lyr:Layer = event.layer;
+				if (!layerColl.contains(lyr))
+				{
+					layerColl.addItem(lyr);
+				}
+			}
+			
+			protected function layerUpdateEndHandler(event:LayerEvent):void
+			{
+				var lyr:Layer = event.layer;
+				if (layerColl.contains(lyr))
+				{
+					layerColl.removeItemAt(layerColl.getItemIndex(lyr));
+				}
+				load_img.visible = !layerColl.length == 0;
+			}
+
+		]]>
+	</fx:Script>
+	<s:HGroup
+		width="100%"
+		height="100%"
+		horizontalAlign="center"
+		verticalAlign="middle">
+		<mx:Image id="load_img" visible="false" />	
+	</s:HGroup>
+</viewer:BaseWidget>
