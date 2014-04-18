@@ -1,7 +1,9 @@
 LoadingWidget
 =============
 
-An ESRI ArcGIS Flexviewer widget that displays a swf file while a layer is loading
+An ESRI ArcGIS Flexviewer widget that displays a swf icon while a layer is loading.
+
+This was created to replace an existing widget I used that displayed a progress bar.
 
 ![Alt text](http://georemedy.com/public/github/LoadingWidget/screenshot.png "Screenshot")
 
